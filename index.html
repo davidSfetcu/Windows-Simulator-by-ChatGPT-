@@ -3,25 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Windows Phone Simulator</title>
-  <link rel="stylesheet" href="styles/main.css" />
+  <title>Windows Phone 8 — Simulator (WP8 Complete)</title>
+  <link rel="stylesheet" href="styles/wp8.css" />
 </head>
 <body>
-  <div class="phone">
-    <img class="frame" src="icons/phone-frame.svg" alt="phone frame" />
-    <div class="screen">
-      <div id="home" class="home">
-        <div class="status">Windows Phone • Simulator</div>
-        <div id="grid" class="grid"></div>
-      </div>
-
-      <div id="app-window" class="app-window hidden">
-        <button id="btn-close" class="btn-close">✕</button>
-        <div id="app-content" class="app-content"></div>
-      </div>
-    </div>
+  <div id="lock-screen" class="lock-screen hidden">
+    <div class="lock-time" id="lock-time"></div>
+    <div class="lock-notice">Swipe up to unlock</div>
+    <button id="unlock-btn" class="unlock-btn">Unlock</button>
   </div>
 
-  <script src="scripts/app.js"></script>
+  <div class="phone-shell">
+    <header class="bar">Windows Phone 8 Simulator</header>
+    <main>
+      <div id="tile-grid" class="tile-grid"></div>
+      <div id="app-frame" class="app-frame hidden">
+        <div class="app-toolbar"><button id="app-back">◀</button><span id="app-title"></span></div>
+        <iframe id="app-iframe" sandbox="allow-scripts allow-same-origin" src="about:blank"></iframe>
+      </div>
+    </main>
+    <footer class="dock">
+      <button id="btn-phone">Phone</button>
+      <button id="btn-messages">Messages</button>
+      <button id="btn-people">People</button>
+      <button id="btn-internet">Internet</button>
+    </footer>
+  </div>
+
+  <script src="scripts/core.js"></script>
 </body>
 </html>

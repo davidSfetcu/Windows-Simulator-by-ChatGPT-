@@ -1,20 +1,15 @@
-# Windows Phone Simulator — README
+# WP8 Complete — Feature Branch
 
-This simulator is a lightweight, client-only Windows Phone-like UI you can run from the repository.
-
-Files added in this commit (starter):
-- index.html — launcher and phone shell
-- styles/main.css — simulator styles
-- scripts/app.ts — TypeScript source (optional)
-- scripts/app.js — compiled JS (no build step required)
-- apps/clock.html, apps/clock.js — sample Clock app
-- apps/notes.html, apps/notes.js — Notes app (uses localStorage)
-- icons/* — SVG phone frame and app icons
+This branch (feature/wp8-complete) contains a high-fidelity Windows Phone 8 simulator built with HTML/CSS/JS. It's designed to approximate the look and feel of WP8 and provide functional apps simulated in the browser.
 
 How to run:
-1. Clone the repo: git clone https://github.com/davidSfetcu/Windows-Simulator-by-ChatGPT-.git
-2. Open index.html in a browser (double-click or serve with a static server).
+- Clone the repo and checkout the branch:
+  git fetch origin feature/wp8-complete && git checkout feature/wp8-complete
+- Serve with a static server (recommended):
+  python -m http.server 8000
+  open http://localhost:8000/index.html
 
 Notes:
-- The simulator is client-only and uses localStorage for notes. If you want a PHP backend for persistence, tell me and I can add server/api.php and example fetch calls.
-- I avoided modifying README.md in the repo; this file is README_SIMULATOR.md to document the simulator.
+- Camera requires HTTPS or localhost for getUserMedia.
+- All data is persisted in localStorage via a simple storage wrapper. You can migrate to server endpoints if desired.
+- To simulate an incoming call press the "c" key in the shell page or use the "Simulate Incoming" button in the Phone app.

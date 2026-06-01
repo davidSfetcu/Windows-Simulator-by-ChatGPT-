@@ -1,0 +1,22 @@
+/* WP8-like styles (simplified) */
+:root{--bg:#0b2b4a;--accent:#00a2ff;--tile:#00a2ff;--tile2:#1a9bff;--text:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI, Arial, sans-serif;background:linear-gradient(180deg,#021123,#071a2e);color:var(--text);display:flex;align-items:center;justify-content:center;height:100vh}
+.phone-shell{width:360px;height:640px;background:#061827;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+.bar{height:44px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;padding:0 12px;font-weight:600}
+main{flex:1;position:relative}
+.tile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:12px}
+.tile{background:var(--tile);height:80px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);cursor:pointer;position:relative}
+.tile.small{height:38px}
+.tile .label{font-size:12px;margin-top:6px}
+.app-frame{position:absolute;inset:0;background:#071a2e;display:flex;flex-direction:column}
+.app-toolbar{height:44px;display:flex;align-items:center;gap:12px;padding:0 8px}
+.app-iframe{flex:1;border:0}
+.dock{height:56px;background:rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-around}
+button{background:transparent;color:var(--text);border:0;padding:8px;border-radius:6px;cursor:pointer}
+.lock-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,1,1,0.6),rgba(0,0,0,0.8));z-index:50}
+.lock-screen.hidden{display:none}
+.lock-time{font-size:48px;font-weight:600}
+.unlock-btn{margin-top:24px;padding:8px 12px;background:var(--accent);border:0;border-radius:8px;color:#003}
+/* small helpers */
+.hidden{display:none}
