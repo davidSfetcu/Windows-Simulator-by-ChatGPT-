@@ -1,4 +1,4 @@
-// scripts/core.js — upgraded core: IndexedDB-backed storage with in-memory cache, notifications, multitasking hooks
+// updated core.js (Stage B) — respects tile order, persists notifications, and minor polish
 const WP = (function(){
   const APPS = [
     {id:'phone', name:'Phone', icon:'icons/app-phone.svg', entry:'apps/phone/index.html'},
@@ -17,7 +17,7 @@ const WP = (function(){
   const DB_NAME = 'wp8_sim_db_v1';
   const STORE_NAME = 'kv';
   let _db = null;
-  const CACHE = {}; // in-memory cache to allow synchronous reads for iframe apps
+  const CACHE = {};
 
   function idbOpen(){
     return new Promise((resolve, reject)=>{
@@ -66,7 +66,6 @@ const WP = (function(){
     });
   }
 
-  // Storage API: synchronous reads from CACHE, async persistence to IndexedDB
   const Storage = {
     get(key, fallback){
       return (key in CACHE)? CACHE[key] : fallback;
@@ -77,8 +76,15 @@ const WP = (function(){
     }
   };
 
-  // Notifications (toast) inside shell
   function showToast(title, body, timeout=4000){
+    // persist notification
+    try{
+      const list = Storage.get('notifications', []) || [];
+      list.unshift({title, body, when: new Date().toLocaleString()});
+      if(list.length>100) list.length=100;
+      Storage.set('notifications', list);
+    }catch(e){ console.warn('Failed to persist notification', e); }
+
     const existing = document.getElementById('wp-toast');
     if(existing) existing.remove();
     const t = document.createElement('div'); t.id='wp-toast';
@@ -90,19 +96,25 @@ const WP = (function(){
 
   function renderTiles(){
     const grid = document.getElementById('tile-grid'); grid.innerHTML='';
-    APPS.forEach(app=>{
-      const t = document.createElement('div'); t.className='tile'; t.id='tile-'+app.id;
+    const savedOrder = Storage.get('tileOrder', null);
+    let orderedApps = [];
+    if(Array.isArray(savedOrder)){
+      // add APPS in saved order if present
+      savedOrder.forEach(id=>{ const a = APPS.find(x=>x.id===id); if(a) orderedApps.push(a); });
+      // append any apps not in the saved order
+      APPS.forEach(a=>{ if(!orderedApps.find(x=>x.id===a.id)) orderedApps.push(a); });
+    }else orderedApps = APPS.slice();
+
+    orderedApps.forEach(app=>{
+      const t = document.createElement('div'); t.className='tile'; t.id='tile-'+app.id; t.setAttribute('role','listitem'); t.setAttribute('draggable','true');
       t.innerHTML = `<div class="icon"><img src="${app.icon}" alt="${app.name}" width="36"/></div><div class="label">${app.name}</div>`;
       t.addEventListener('click',()=>openApp(app));
       grid.appendChild(t);
     });
+
     // installed apps from storage
     const installed = Storage.get('installed',[]);
-    if(installed && installed.length){ installed.forEach(it=>{ // create simple tiles for installed items
-      if(!document.getElementById('tile-'+it.id)){
-        const t = document.createElement('div'); t.className='tile'; t.id='tile-'+it.id; t.innerHTML=`<div class="icon"></div><div class="label">${it.name}</div>`; t.onclick=()=> alert(it.name+' — installed app (placeholder)'); document.getElementById('tile-grid').appendChild(t);
-      }
-    }); }
+    if(installed && installed.length){ installed.forEach(it=>{ if(!document.getElementById('tile-'+it.id)){ const t = document.createElement('div'); t.className='tile'; t.id='tile-'+it.id; t.setAttribute('draggable','true'); t.innerHTML=`<div class="icon"></div><div class="label">${it.name}</div>`; t.onclick=()=> alert(it.name+' — installed app (placeholder)'); document.getElementById('tile-grid').appendChild(t); } }); }
   }
 
   function openApp(app){
@@ -111,10 +123,8 @@ const WP = (function(){
     const title = document.getElementById('app-title');
     frame.classList.remove('hidden');
     title.textContent = app.name;
-    // remember last opened app
     Storage.set('lastOpen', app.id);
     iframe.src = app.entry;
-    // give iframe some context after load
     iframe.onload = ()=>{
       try{ iframe.contentWindow.postMessage({type:'app-resume', id:app.id, state: Storage.get('appState_'+app.id, {})}, '*'); }catch(e){}
     };
@@ -124,7 +134,6 @@ const WP = (function(){
   function closeApp(app){
     const frame = document.getElementById('app-frame');
     const iframe = document.getElementById('app-iframe');
-    // request app to save state via postMessage; allow 300ms for response
     try{ iframe.contentWindow.postMessage({type:'app-suspend-request', id: app && app.id}, '*'); }catch(e){}
     setTimeout(()=>{ frame.classList.add('hidden'); iframe.src='about:blank'; }, 300);
   }
@@ -149,12 +158,11 @@ const WP = (function(){
   }
 
   function simulateIncomingCall(from='Unknown'){
-    // notification + open phone app and notify iframe
     showToast('Incoming call', from, 6000);
     openApp(APPS.find(a=>a.id==='phone'));
     setTimeout(()=>{
       const iframe = document.getElementById('app-iframe');
-      iframe.contentWindow.postMessage({type:'incoming-call',from},'*');
+      try{ iframe.contentWindow.postMessage({type:'incoming-call',from},'*'); }catch(e){}
     },500);
   }
 
@@ -170,31 +178,21 @@ const WP = (function(){
     },3000);
   }
 
-  // message handling from iframes (app lifecycle, notifications, save-state)
   window.addEventListener('message', ev=>{
     const d = ev.data; if(!d || typeof d !== 'object') return;
     if(d.type==='notify'){ showToast(d.title||'Notification', d.body||'', d.timeout||4000); }
     if(d.type==='save-state' && d.appId){ Storage.set('appState_'+d.appId, d.state||{}); }
     if(d.type==='simulate-incoming'){ simulateIncomingCall(d.from||'Unknown'); }
-    if(d.type==='request-storage'){ // iframe asking for storage snapshot
-      ev.source.postMessage({type:'storage-snapshot', snapshot: {}}, '*');
-    }
+    if(d.type==='request-storage'){ ev.source.postMessage({type:'storage-snapshot', snapshot: CACHE}, '*'); }
   });
 
   async function init(){
-    // try to initialize persistent DB and load to cache; fallback to localStorage if IDB fails
-    try{
-      await idbOpen();
-      await idbGetAllToCache();
-    }catch(e){
-      // failure: try to populate CACHE from localStorage
-      try{
-        for(let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); try{ CACHE[k]=JSON.parse(localStorage.getItem(k)); }catch(e){} }
-      }catch(e){}
-    }
+    try{ await idbOpen(); await idbGetAllToCache(); }
+    catch(e){ try{ for(let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); try{ CACHE[k]=JSON.parse(localStorage.getItem(k)); }catch(e){} } }catch(e){} }
     renderTiles(); setupDock(); setupLockScreen(); startLiveTiles();
-    // keyboard shortcut to simulate incoming call
     window.addEventListener('keydown',e=>{ if(e.key==='c'){ simulateIncomingCall('Test Caller'); } });
+    // update notification center UI if notifications exist
+    const existing = Storage.get('notifications',[]); if(existing && existing.length){ const center = document.getElementById('notification-center'); if(center){ center.innerHTML = existing.map(n=>`<div class="notify"><strong>${n.title}</strong><div>${n.body}</div><div class="when">${n.when}</div></div>`).join(''); } }
   }
 
   return { init, Storage, simulateIncomingCall, notify:showToast };

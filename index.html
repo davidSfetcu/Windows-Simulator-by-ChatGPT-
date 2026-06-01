@@ -7,29 +7,32 @@
   <link rel="stylesheet" href="styles/wp8.css" />
 </head>
 <body>
-  <div id="lock-screen" class="lock-screen hidden">
-    <div class="lock-time" id="lock-time"></div>
+  <div id="lock-screen" class="lock-screen hidden" role="dialog" aria-label="Lock screen">
+    <div class="lock-time" id="lock-time" aria-live="polite"></div>
     <div class="lock-notice">Swipe up to unlock</div>
-    <button id="unlock-btn" class="unlock-btn">Unlock</button>
+    <button id="unlock-btn" class="unlock-btn" aria-label="Unlock">Unlock</button>
   </div>
 
-  <div class="phone-shell">
-    <header class="bar">Windows Phone 8 Simulator</header>
+  <div class="phone-shell" role="application" aria-label="Windows Phone 8 Simulator">
+    <header class="bar" role="banner">Windows Phone 8 Simulator</header>
     <main>
-      <div id="tile-grid" class="tile-grid"></div>
-      <div id="app-frame" class="app-frame hidden">
-        <div class="app-toolbar"><button id="app-back">◀</button><span id="app-title"></span></div>
-        <iframe id="app-iframe" sandbox="allow-scripts allow-same-origin" src="about:blank"></iframe>
+      <div id="notification-center" class="notification-center hidden" aria-live="polite" aria-atomic="true"></div>
+      <div id="tile-grid" class="tile-grid" role="list" aria-label="App tiles"></div>
+      <div id="app-frame" class="app-frame hidden" role="region" aria-label="App window">
+        <div class="app-toolbar"><button id="app-back" aria-label="Back">◀</button><span id="app-title"></span></div>
+        <iframe id="app-iframe" sandbox="allow-scripts allow-same-origin" src="about:blank" title="App content"></iframe>
       </div>
     </main>
-    <footer class="dock">
-      <button id="btn-phone">Phone</button>
-      <button id="btn-messages">Messages</button>
-      <button id="btn-people">People</button>
-      <button id="btn-internet">Internet</button>
+    <footer class="dock" role="navigation" aria-label="Dock">
+      <button id="btn-phone" aria-label="Phone">Phone</button>
+      <button id="btn-messages" aria-label="Messages">Messages</button>
+      <button id="btn-people" aria-label="People">People</button>
+      <button id="btn-internet" aria-label="Internet">Internet</button>
     </footer>
   </div>
 
   <script src="scripts/core.js"></script>
+  <script src="scripts/notifications.js"></script>
+  <script src="scripts/tile-reorder.js"></script>
 </body>
 </html>
