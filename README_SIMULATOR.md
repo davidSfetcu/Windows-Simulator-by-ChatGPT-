@@ -1,18 +1,20 @@
-# WP8 Stage B — Progress
+# Server integration added (Stage C)
 
-This commit adds Stage B features to the Windows Phone 8 simulator branch (feature/wp8-complete):
+I added a simple Express server under /server to integrate with real services you requested: Twilio (SMS & calls), SMTP mail via nodemailer, and OpenWeatherMap proxy.
 
-- Tile reordering via drag & drop (tiles saved to IndexedDB)
-- Notification center (persisted) and notifications are stored when WP.notify is called
-- Mail app (local mailboxes) and compose/send
-- Video app placeholder (assets/sample.mp4 placeholder)
-- Calculator app
-- Weather app with mock data and optional OpenWeatherMap integration when you store a key under `weatherApiKey`
-- Small accessibility improvements in index.html (ARIA roles)
+Files added:
+- server/index.js — Express server with endpoints
+- server/package.json — dependencies
+- server/.env.example — env vars to configure
+- server/README.md — how to run
 
-How to test (quick)
-- Checkout the branch and serve the repo locally (python -m http.server)
-- Open the shell (index.html), drag tiles to reorder them; ordering is persisted.
-- Use the Mail app to compose messages (saved locally). Use Weather -> Refresh to see mock data.
+Client changes:
+- scripts/messaging.js now attempts to POST messages to http://localhost:3000/api/sms/send (falls back to local storage)
+- scripts/mail.js now attempts to POST to http://localhost:3000/api/mail/send (falls back to local storage)
+- scripts/weather.js will try the server proxy at http://localhost:3000/api/weather before falling back to mock data or direct OpenWeatherMap if you store a key in storage.
 
-Next: Mail polishing, Calendar reminders with notification scheduling, Music playlists, Video samples, Store polish (install creates real placeholder tiles), accessibility audit and i18n expansion.
+Next steps:
+- Start the server locally and set environment variables with your Twilio and SMTP credentials. Server will return helpful 501 errors if not configured.
+- Provide any credentials you want integrated on hosted environment (use .env and never commit credentials to git).
+
+Note: I did not include any API keys in the repository. Provide them via environment variables on the server where you run the backend.
