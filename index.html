@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Windows Phone Simulator</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <div class="phone">
+    <img class="frame" src="icons/phone-frame.svg" alt="phone frame" />
+    <div class="screen">
+      <div id="home" class="home">
+        <div class="status">Windows Phone • Simulator</div>
+        <div id="grid" class="grid"></div>
+      </div>
+
+      <div id="app-window" class="app-window hidden">
+        <button id="btn-close" class="btn-close">✕</button>
+        <div id="app-content" class="app-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/app.js"></script>
+</body>
+</html>

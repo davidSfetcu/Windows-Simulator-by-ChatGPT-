@@ -1,0 +1,24 @@
+/* Main styles for phone simulator */
+:root{
+  --bg:#0b3b73;
+  --tile:#1e90ff;
+  --tile-dark:#1570c8;
+  --screen-bg:#0a2140;
+  --text:#ffffff;
+}
+html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:linear-gradient(180deg,#07203a,#02121f);display:flex;align-items:center;justify-content:center}
+.phone{position:relative;width:360px;height:720px}
+.frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.screen{position:absolute;left:28px;top:72px;width:304px;height:576px;background:var(--screen-bg);border-radius:20px;overflow:hidden;color:var(--text)}
+.home{padding:12px}
+.status{height:24px;color:rgba(255,255,255,0.9);font-size:13px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:72px;gap:10px}
+.tile{background:var(--tile);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);cursor:pointer;user-select:none}
+.tile img{width:36px;height:36px;margin-bottom:6px}
+.tile span{font-size:12px}
+.app-window{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.05),rgba(255,255,255,0.02));padding:12px;box-sizing:border-box}
+.hidden{display:none}
+.btn-close{position:absolute;right:8px;top:8px;background:transparent;border:0;color:var(--text);font-size:20px;cursor:pointer}
+.app-content{padding-top:40px;height:100%;overflow:auto}
+/* small responsive */
+@media (max-width:420px){.phone{transform:scale(0.95)}}
